@@ -1,5 +1,22 @@
-// ページ遷移はまだやっていない
+"use client";
+
+import type { KeyboardEvent } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Header() {
+	const router = useRouter();
+
+	const navigateToHome = () => {
+		router.push("/home");
+	};
+
+	const handleTitleKeyDown = (event: KeyboardEvent<HTMLHeadingElement>) => {
+		if (event.key === "Enter" || event.key === " ") {
+			event.preventDefault();
+			navigateToHome();
+		}
+	};
+
 	return (
 		<header
 			className="w-full"
@@ -10,8 +27,14 @@ export default function Header() {
 		>
 			<div className="mx-auto flex h-full w-full max-w-[var(--max-width-content)] items-center justify-between px-[var(--page-padding)]">
 				<h1
-					className="font-bold text-2xl tracking-tight"
+					className="cursor-pointer font-bold text-2xl tracking-tight"
 					style={{ color: "var(--color-text)" }}
+					onClick={() => {
+						navigateToHome();
+					}}
+					onKeyDown={handleTitleKeyDown}
+					role="link"
+					tabIndex={0}
 				>
 					HazyRoom
 				</h1>
