@@ -14,8 +14,13 @@ export function getAvatarColor(roomId: string, name: string): string {
   let hash = 0;
 
   for (let i = 0; i < key.length; i++) {
-    hash = (hash * 31 + key.charCodeAt(i)) % avatarColors.length;
+    hash = (hash * 31 + key.charCodeAt(i)) | 0;
   }
 
-  return avatarColors[Math.abs(hash) % avatarColors.length];
+  let index = hash % avatarColors.length;
+  if (index < 0) {
+    index += avatarColors.length;
+  }
+
+  return avatarColors[index];
 }
