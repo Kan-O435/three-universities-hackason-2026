@@ -203,7 +203,7 @@ export default function Home() {
             <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
               アカウントをお持ちでない方は{" "}
               <Link
-                href="/auth"
+                href="/signup"
                 className="font-semibold underline decoration-2 underline-offset-4"
                 style={{ color: "var(--color-accent-2)" }}
               >

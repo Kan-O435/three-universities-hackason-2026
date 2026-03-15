@@ -2,11 +2,12 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { signUp } from "@/lib/auth";
 import Header from "@/components/Header";
 
-function AuthForm() {
+function SignUpForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
@@ -17,13 +18,12 @@ function AuthForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ログイン済みなら /home へ
-  useEffect(() => {
-    if (!loading && user) router.replace("/home");
-  }, [user, loading, router]);
-
   const raw = searchParams.get("redirect") ?? "";
   const redirectTo = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/home";
+
+  useEffect(() => {
+    if (!loading && user) router.replace(redirectTo);
+  }, [user, loading, router, redirectTo]);
 
   const handleSignUp = () => {
     if (!displayName.trim()) {
@@ -39,6 +39,8 @@ function AuthForm() {
   };
 
   if (loading || user) return null;
+
+  const signInHref = raw ? `/signin?redirect=${encodeURIComponent(raw)}` : "/signin";
 
   return (
     <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
@@ -63,17 +65,28 @@ function AuthForm() {
           {error && <ErrorMessage text={error} />}
           <SubmitButton label="登録" loading={isSubmitting} />
         </form>
+
+        <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
+          アカウントをお持ちの方は{" "}
+          <Link
+            href={signInHref}
+            className="font-semibold underline decoration-2 underline-offset-4"
+            style={{ color: "var(--color-accent-2)" }}
+          >
+            ログインはこちら
+          </Link>
+        </p>
       </div>
     </div>
   );
 }
 
-export default function AuthPage() {
+export default function SignUpPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <Suspense>
-        <AuthForm />
+        <SignUpForm />
       </Suspense>
     </div>
   );
