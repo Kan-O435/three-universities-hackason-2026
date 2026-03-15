@@ -16,6 +16,7 @@ export default function CreateGroupCard({ onClick }: CreateGroupCardProps) {
         hover:-translate-y-1
         sm:h-[160px] sm:w-[160px]
         md:h-[180px] md:w-[180px]
+        cursor-pointer
       "
     >
       <span className="text-[40px] font-semibold leading-none text-[var(--color-text)] sm:text-[44px] md:text-[48px]">
