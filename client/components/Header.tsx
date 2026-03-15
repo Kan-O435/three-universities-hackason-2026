@@ -17,6 +17,10 @@ export default function Header() {
 		}
 	};
 
+	const navigateToMyPage = () => {
+		router.push("/maypage");
+	};
+
 	return (
 		<header
 			className="w-full"
@@ -25,7 +29,7 @@ export default function Header() {
 				backgroundColor: "var(--color-accent-1)",
 			}}
 		>
-			<div className="mx-auto flex h-full w-full max-w-[var(--max-width-content)] items-center justify-between px-[var(--page-padding)]">
+			<div className="mx-auto flex h-full w-full max-w-(--max-width-content) items-center justify-between px-(--page-padding)">
 				<h1
 					className="cursor-pointer font-bold text-2xl tracking-tight"
 					style={{ color: "var(--color-text)" }}
@@ -39,16 +43,18 @@ export default function Header() {
 					HazyRoom
 				</h1>
 
-				<div
-					className="flex h-[60px] w-[60px] items-center justify-center rounded-full text-lg font-semibold"
+				<button
+					type="button"
+					onClick={navigateToMyPage}
+					className="flex h-15 w-15 items-center justify-center rounded-full text-lg font-semibold transition hover:brightness-95"
 					style={{
 						backgroundColor: "var(--color-bg)",
 						color: "var(--color-accent-2)",
 					}}
-					aria-label="My icon"
+					aria-label="マイページ"
 				>
 					My
-				</div>
+				</button>
 			</div>
 		</header>
 	);
