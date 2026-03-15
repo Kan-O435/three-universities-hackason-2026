@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { signUp } from "@/lib/auth";
 import Header from "@/components/Header";
 
-export default function AuthPage() {
+function AuthForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
@@ -41,32 +41,40 @@ export default function AuthPage() {
   if (loading || user) return null;
 
   return (
+    <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
+      <div
+        className="w-full max-w-md rounded-(--radius-card) border p-8 shadow-(--shadow-card)"
+        style={{
+          backgroundColor: "var(--color-surface)",
+          borderColor: "color-mix(in srgb, var(--color-accent-2) 24%, white)",
+        }}
+      >
+        <h2
+          className="text-center text-2xl font-semibold tracking-tight sm:text-3xl"
+          style={{ color: "var(--color-text)" }}
+        >
+          新規登録
+        </h2>
+
+        <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSignUp(); }}>
+          <Field label="表示名" id="displayName" type="text" value={displayName} onChange={setDisplayName} disabled={isSubmitting} maxLength={40} />
+          <Field label="メールアドレス" id="email" type="email" value={email} onChange={setEmail} disabled={isSubmitting} />
+          <Field label="パスワード" id="password" type="password" value={password} onChange={setPassword} disabled={isSubmitting} />
+          {error && <ErrorMessage text={error} />}
+          <SubmitButton label="登録" loading={isSubmitting} />
+        </form>
+      </div>
+    </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
-        <div
-          className="w-full max-w-md rounded-(--radius-card) border p-8 shadow-(--shadow-card)"
-          style={{
-            backgroundColor: "var(--color-surface)",
-            borderColor: "color-mix(in srgb, var(--color-accent-2) 24%, white)",
-          }}
-        >
-          <h2
-            className="text-center text-2xl font-semibold tracking-tight sm:text-3xl"
-            style={{ color: "var(--color-text)" }}
-          >
-            新規登録
-          </h2>
-
-          <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSignUp(); }}>
-            <Field label="表示名" id="displayName" type="text" value={displayName} onChange={setDisplayName} disabled={isSubmitting} maxLength={40} />
-            <Field label="メールアドレス" id="email" type="email" value={email} onChange={setEmail} disabled={isSubmitting} />
-            <Field label="パスワード" id="password" type="password" value={password} onChange={setPassword} disabled={isSubmitting} />
-            {error && <ErrorMessage text={error} />}
-            <SubmitButton label="登録" loading={isSubmitting} />
-          </form>
-        </div>
-      </div>
+      <Suspense>
+        <AuthForm />
+      </Suspense>
     </div>
   );
 }
