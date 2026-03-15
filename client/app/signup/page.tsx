@@ -26,7 +26,7 @@ function SignUpForm() {
 
   const handleSignUp = () => {
     if (!displayName.trim()) {
-      setError("表示名を入力してください。");
+      setError("Please enter a display name.");
       return;
     }
     setError(null);
@@ -54,25 +54,25 @@ function SignUpForm() {
           className="text-center text-2xl font-semibold tracking-tight sm:text-3xl"
           style={{ color: "var(--color-text)" }}
         >
-          新規登録
+          Sign Up
         </h2>
 
         <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSignUp(); }}>
-          <Field label="表示名" id="displayName" type="text" value={displayName} onChange={setDisplayName} disabled={isSubmitting} maxLength={40} />
-          <Field label="メールアドレス" id="email" type="email" value={email} onChange={setEmail} disabled={isSubmitting} />
-          <Field label="パスワード" id="password" type="password" value={password} onChange={setPassword} disabled={isSubmitting} />
+          <Field label="Display Name" id="displayName" type="text" value={displayName} onChange={setDisplayName} disabled={isSubmitting} maxLength={40} />
+          <Field label="Email" id="email" type="email" value={email} onChange={setEmail} disabled={isSubmitting} />
+          <Field label="Password" id="password" type="password" value={password} onChange={setPassword} disabled={isSubmitting} />
           {error && <ErrorMessage text={error} />}
-          <SubmitButton label="登録" loading={isSubmitting} />
+          <SubmitButton label="Sign Up" loading={isSubmitting} />
         </form>
 
         <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-          アカウントをお持ちの方は{" "}
+          Already have an account?{" "}
           <Link
             href={signInHref}
             className="font-semibold underline decoration-2 underline-offset-4"
             style={{ color: "var(--color-accent-2)" }}
           >
-            ログインはこちら
+            Log in here
           </Link>
         </p>
       </div>
@@ -146,7 +146,7 @@ function SubmitButton({ label, loading }: { label: string; loading: boolean }) {
       className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
       style={{ backgroundColor: "var(--color-accent-2)" }}
     >
-      {loading ? "送信中..." : label}
+      {loading ? "Submitting..." : label}
     </button>
   );
 }

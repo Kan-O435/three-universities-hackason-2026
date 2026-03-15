@@ -34,13 +34,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ja">
+    <html lang="ja" className="overscroll-none">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col overflow-hidden`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased h-screen flex flex-col overflow-hidden overscroll-none`}
       >
         <AuthProvider>
           <Header />
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-none bg-background">
+          <div className="mx-auto flex-1 min-h-0 w-full max-w-screen-xl flex flex-col overflow-y-auto overscroll-none bg-background">
             {children}
           </div>
         </AuthProvider>

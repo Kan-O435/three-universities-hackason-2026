@@ -31,7 +31,7 @@ export default function ChatPanel({ title, roomId, currentUserId, isMemoryMode }
   const handleSend = (content: string) => {
     setSendError(null);
     sendMessage(roomId, content).catch(() => {
-      setSendError("メッセージの送信に失敗しました。もう一度お試しください。");
+      setSendError("Failed to send message. Please try again.");
     });
   };
 
@@ -43,7 +43,7 @@ export default function ChatPanel({ title, roomId, currentUserId, isMemoryMode }
 
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto py-3">
         {messages.length === 0 ? (
-          <p className="m-auto text-sm text-[#94A3B8]">まだメッセージがありません</p>
+          <p className="m-auto text-sm text-[#94A3B8]">No messages yet</p>
         ) : (
           messages.map((msg) => (
             <ChatMessage

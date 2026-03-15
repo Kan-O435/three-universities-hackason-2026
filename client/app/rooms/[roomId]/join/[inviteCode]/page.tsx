@@ -21,7 +21,7 @@ export default function JoinPage() {
   useEffect(() => {
     getRoomPreview(roomId)
       .then(setRoom)
-      .catch(() => setFetchError("ルームが見つかりません。招待リンクが正しいか確認してください。"));
+      .catch(() => setFetchError("Room not found. Please check that the invite link is correct."));
   }, [roomId]);
 
   const handleJoin = () => {
@@ -32,9 +32,9 @@ export default function JoinPage() {
       .catch((err: Error) => {
         const msg = err.message.toLowerCase();
         if (msg.includes("invite") || msg.includes("expired")) {
-          setJoinError("招待コードが不正か、有効期限が切れています。");
+          setJoinError("Invalid invite code or the link has expired.");
         } else {
-          setJoinError("参加に失敗しました。もう一度お試しください。");
+          setJoinError("Failed to join. Please try again.");
         }
       })
       .finally(() => setIsJoining(false));
@@ -52,7 +52,7 @@ export default function JoinPage() {
           {fetchError ? (
             <p className="text-center text-sm text-red-500">{fetchError}</p>
           ) : !room ? (
-            <p className="text-center text-sm text-[#94A3B8]">読み込み中...</p>
+            <p className="text-center text-sm text-[#94A3B8]">Loading...</p>
           ) : (
             <>
               <p className="mb-2 text-sm font-bold text-[#7FA9C9]">Invitation</p>
@@ -77,7 +77,7 @@ export default function JoinPage() {
                   onClick={handleLoginToJoin}
                   className="w-full rounded-xl bg-[#7FA9C9] py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB]"
                 >
-                  ログインして参加
+                  Log In to Join
                 </button>
               ) : (
                 <button
@@ -86,7 +86,7 @@ export default function JoinPage() {
                   disabled={isJoining || loading}
                   className="w-full rounded-xl bg-[#7FA9C9] py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB] disabled:cursor-not-allowed disabled:opacity-70"
                 >
-                  {isJoining ? "参加中..." : "Join Room"}
+                  {isJoining ? "Joining..." : "Join Room"}
                 </button>
               )}
             </>

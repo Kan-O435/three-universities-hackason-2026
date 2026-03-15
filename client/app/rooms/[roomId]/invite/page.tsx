@@ -16,11 +16,9 @@ export default function InviteQrPage() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [ownerName, setOwnerName] = useState("");
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const [origin] = useState(() =>
+    typeof window !== "undefined" ? window.location.origin : ""
+  );
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
@@ -70,7 +68,7 @@ export default function InviteQrPage() {
             onClick={() => router.push(`/rooms/${roomId}`)}
             className="mt-6 w-full rounded-xl bg-[#7FA9C9] py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB]"
           >
-            チャットに戻る
+            Return to Room
           </button>
         </div>
     </main>

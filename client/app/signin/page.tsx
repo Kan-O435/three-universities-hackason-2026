@@ -49,13 +49,13 @@ function SignInForm() {
           className="text-center text-2xl font-semibold tracking-tight sm:text-3xl"
           style={{ color: "var(--color-text)" }}
         >
-          ログイン
+          Log In
         </h2>
 
         <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSignIn(); }}>
           <div className="space-y-1.5">
             <label htmlFor="email" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-              メールアドレス
+              Email
             </label>
             <input
               id="email"
@@ -75,7 +75,7 @@ function SignInForm() {
 
           <div className="space-y-1.5">
             <label htmlFor="password" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-              パスワード
+              Password
             </label>
             <input
               id="password"
@@ -112,18 +112,18 @@ function SignInForm() {
             className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
             style={{ backgroundColor: "var(--color-accent-2)" }}
           >
-            {isSubmitting ? "送信中..." : "ログイン"}
+            {isSubmitting ? "Signing in..." : "Log In"}
           </button>
         </form>
 
         <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-          アカウントをお持ちでない方は{" "}
+          Don&apos;t have an account?{" "}
           <Link
             href={signUpHref}
             className="font-semibold underline decoration-2 underline-offset-4"
             style={{ color: "var(--color-accent-2)" }}
           >
-            新規登録はこちら
+            Sign up here
           </Link>
         </p>
       </div>
