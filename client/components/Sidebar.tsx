@@ -5,22 +5,24 @@ import QrInviteCard from "@/components/QrInviteCard";
 type SidebarProps = {
   roomId: string;
   activeChat: string;
+  expiresAt?: string;
+  members?: { userId: string; displayName: string }[];
 };
 
-const chats = [
-  { id: "all", name: "All", type: "group", href: "" },
-  { id: "u1", name: "AAAAA", type: "dm", href: "dm/u1" },
-  { id: "u2", name: "BBBBB", type: "dm", href: "dm/u2" },
-  { id: "u3", name: "CCCCC", type: "dm", href: "dm/u3" },
-];
+export default function Sidebar({ roomId, activeChat, expiresAt, members = [] }: SidebarProps) {
+  const chats = [
+    { id: "all", name: "All", href: "" },
+    ...members.map((m) => ({
+      id: m.userId,
+      name: m.displayName,
+      href: `dm/${m.userId}`,
+    })),
+  ];
 
-export default function Sidebar({ roomId, activeChat }: SidebarProps) {
   return (
     <aside className="flex w-full flex-col gap-4 md:w-[220px] md:shrink-0">
       <section>
-        <h2 className="mb-2 text-[16px] font-bold text-[#334155]">
-          Group {roomId}/Talks
-        </h2>
+        <h2 className="mb-2 text-[16px] font-bold text-[#334155]">Talks</h2>
 
         <div className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
           <ul className="space-y-0.5">
@@ -53,9 +55,9 @@ export default function Sidebar({ roomId, activeChat }: SidebarProps) {
         </div>
       </section>
 
-      <TimeLimitCard timeText="20:19" />
+      {expiresAt && <TimeLimitCard expiresAt={expiresAt} />}
 
-      <QrInviteCard />
+      <QrInviteCard roomId={roomId} />
     </aside>
   );
 }

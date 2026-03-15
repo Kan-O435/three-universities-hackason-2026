@@ -44,6 +44,20 @@ export async function createRoom(
   return data as Room
 }
 
+export async function getRoomMembers(
+  roomId: string,
+): Promise<{ userId: string; displayName: string }[]> {
+  const { data, error } = await supabase
+    .from("room_members")
+    .select("user_id, users(display_name)")
+    .eq("room_id", roomId)
+  if (error) throw error
+  return (data ?? []).map((row) => ({
+    userId: row.user_id,
+    displayName: (row.users as unknown as { display_name: string } | null)?.display_name ?? "",
+  }))
+}
+
 export async function joinRoom(roomId: string, inviteCode: string): Promise<void> {
   const { error } = await supabase.rpc("join_room", {
     p_room_id: roomId,

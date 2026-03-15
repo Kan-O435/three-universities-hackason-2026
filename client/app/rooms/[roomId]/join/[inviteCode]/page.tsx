@@ -1,19 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/Header";
+import { getRoomPreview, joinRoom } from "@/lib/rooms";
+import type { RoomPreview } from "@/types";
 
-type JoinPageProps = {
-  params: Promise<{
-    roomId: string;
-    inviteCode: string;
-  }>;
-};
+export default function JoinPage() {
+  const router = useRouter();
+  const params = useParams();
+  const roomId = params.roomId as string;
+  const inviteCode = params.inviteCode as string;
+  const { user, loading } = useAuth();
 
-export default async function JoinPage({ params }: JoinPageProps) {
-  const { roomId, inviteCode } = await params;
+  const [room, setRoom] = useState<RoomPreview | null>(null);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isJoining, setIsJoining] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
 
-  const room = {
-    name: "HazyRoom Talk",
-    owner: "AAAAA",
-    description: "短期間だけつながるSNSのテストルームです。",
+  useEffect(() => {
+    getRoomPreview(roomId)
+      .then(setRoom)
+      .catch(() => setFetchError("ルームが見つかりません。招待リンクが正しいか確認してください。"));
+  }, [roomId]);
+
+  const handleJoin = () => {
+    setJoinError(null);
+    setIsJoining(true);
+    joinRoom(roomId, inviteCode)
+      .then(() => router.replace(`/rooms/${roomId}`))
+      .catch((err: Error) => setJoinError(err.message))
+      .finally(() => setIsJoining(false));
+  };
+
+  const handleLoginToJoin = () => {
+    const redirect = `/rooms/${roomId}/join/${inviteCode}`;
+    router.push(`/signin?redirect=${encodeURIComponent(redirect)}`);
   };
 
   return (
@@ -23,28 +46,48 @@ export default async function JoinPage({ params }: JoinPageProps) {
       <main className="flex flex-1 items-center justify-center px-4 py-8">
         <div className="w-full max-w-md rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
 
-          <p className="mb-2 text-sm font-bold text-[#7FA9C9]">
-            Invitation
-          </p>
+          {fetchError ? (
+            <p className="text-center text-sm text-red-500">{fetchError}</p>
+          ) : !room ? (
+            <p className="text-center text-sm text-[#94A3B8]">読み込み中...</p>
+          ) : (
+            <>
+              <p className="mb-2 text-sm font-bold text-[#7FA9C9]">Invitation</p>
 
-          <h1 className="mb-1 text-xl font-bold text-[#334155]">
-            {room.name}
-          </h1>
+              <h1 className="mb-1 text-xl font-bold text-[#334155]">{room.name}</h1>
 
-          <p className="mb-3 text-sm text-[#64748B]">
-            created by {room.owner}
-          </p>
+              <p className="mb-3 text-sm text-[#64748B]">created by {room.owner_name}</p>
 
-          <p className="mb-6 text-sm text-[#64748B]">
-            {room.description}
-          </p>
+              {room.description && (
+                <p className="mb-6 text-sm text-[#64748B]">{room.description}</p>
+              )}
 
-          <button
-            type="button"
-            className="w-full rounded-xl bg-[#7FA9C9] py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB]"
-          >
-            Join Room
-          </button>
+              {joinError && (
+                <p className="mb-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                  {joinError}
+                </p>
+              )}
+
+              {!loading && !user ? (
+                <button
+                  type="button"
+                  onClick={handleLoginToJoin}
+                  className="w-full rounded-xl bg-[#7FA9C9] py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB]"
+                >
+                  ログインして参加
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleJoin}
+                  disabled={isJoining || loading}
+                  className="w-full rounded-xl bg-[#7FA9C9] py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#6F9ABB] disabled:cursor-not-allowed disabled:opacity-70"
+                >
+                  {isJoining ? "参加中..." : "Join Room"}
+                </button>
+              )}
+            </>
+          )}
 
         </div>
       </main>
