@@ -23,6 +23,7 @@ export default function GroupCard({
         hover:-translate-y-1
         sm:h-[160px] sm:w-[160px]
         md:h-[180px] md:w-[180px]
+        cursor-pointer
         ${isMemoryMode ? "bg-[var(--color-memory)]" : "bg-[var(--color-accent-2)]"}
       `}
     >
