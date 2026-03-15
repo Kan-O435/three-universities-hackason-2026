@@ -27,7 +27,7 @@ export default function ProfilePage() {
 				setDisplayName(profile.display_name);
 				setInitialDisplayName(profile.display_name);
 			})
-			.catch(() => setNotice({ type: "error", text: "プロフィール情報の取得に失敗しました。" }))
+			.catch(() => setNotice({ type: "error", text: "Failed to fetch profile information." }))
 			.finally(() => setIsLoading(false));
 	}, [user]);
 
@@ -40,7 +40,7 @@ export default function ProfilePage() {
 		if (!user) return;
 		const trimmed = displayName.trim();
 		if (trimmed === initialDisplayName) {
-			setNotice({ type: "error", text: "現在の名前と同じです。" });
+			setNotice({ type: "error", text: "The display name is the same as the current one." });
 			return;
 		}
 		setNotice(null);
@@ -48,16 +48,16 @@ export default function ProfilePage() {
 		updateDisplayName(user.id, trimmed)
 			.then(() => {
 				setInitialDisplayName(trimmed);
-				setNotice({ type: "success", text: "名前を更新しました。" });
+				setNotice({ type: "success", text: "Display name updated successfully." });
 			})
-			.catch(() => setNotice({ type: "error", text: "名前の更新に失敗しました。" }))
+			.catch(() => setNotice({ type: "error", text: "Failed to update display name." }))
 			.finally(() => setIsSaving(false));
 	};
 
 	const handleSignOut = () => {
 		signOut()
 			.then(() => router.replace("/"))
-			.catch(() => setNotice({ type: "error", text: "ログアウトに失敗しました。" }));
+			.catch(() => setNotice({ type: "error", text: "Failed to sign out." }));
 	};
 
 	if (loading || !user) return null;
@@ -72,7 +72,7 @@ export default function ProfilePage() {
 					}}
 				>
 					<h2 className="text-2xl font-semibold tracking-tight sm:text-3xl" style={{ color: "var(--color-text)" }}>
-						プロフィール
+						Profile
 					</h2>
 					<p className="mt-2 text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
 						{user.email}
@@ -81,7 +81,7 @@ export default function ProfilePage() {
 					<form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 						<div className="space-y-1.5">
 							<label htmlFor="display-name" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-								表示名
+								Display Name
 							</label>
 							<input
 								id="display-name"
@@ -90,7 +90,7 @@ export default function ProfilePage() {
 								value={displayName}
 								onChange={(e) => setDisplayName(e.target.value)}
 								disabled={isLoading || isSaving}
-								placeholder={isLoading ? "読み込み中..." : "表示名を入力"}
+								placeholder={isLoading ? "Loading..." : "Enter display name"}
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
 								style={{
 									borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
@@ -105,7 +105,7 @@ export default function ProfilePage() {
 							className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
 							style={{ backgroundColor: "var(--color-accent-2)" }}
 						>
-							{isSaving ? "保存中..." : "保存"}
+							{isSaving ? "Saving..." : "Save Changes"}
 						</button>
 					</form>
 
@@ -131,7 +131,7 @@ export default function ProfilePage() {
 							color: "var(--color-text)",
 						}}
 					>
-						ログアウト
+						Log Out
 					</button>
 				</section>
 		</main>

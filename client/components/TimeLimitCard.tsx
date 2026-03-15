@@ -17,9 +17,9 @@ export default function TimeLimitCard({ expiresAt }: TimeLimitCardProps) {
   }, [expiresAt]);
 
   return (
-    <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-      <p className="mb-2 text-sm font-bold text-[#4A5568]">TimeLimit</p>
-      <p className="text-center text-[22px] font-bold text-[#4A5568]">
+    <section className="flex-1 rounded-2xl border border-[#E5E7EB] bg-white p-3 shadow-sm md:flex-none md:p-4">
+      <p className="mb-1 text-sm font-bold text-[#4A5568] md:mb-2">TimeLimit</p>
+      <p className="text-center text-lg font-bold text-[#4A5568] md:text-[22px]">
         {timeText}
       </p>
     </section>

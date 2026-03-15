@@ -38,7 +38,7 @@ export default function HomePage() {
 
   return (
     <main className="px-[var(--page-padding)] py-6">
-        <div className="mx-auto max-w-[var(--max-width-content)]">
+        <div className="mx-auto max-w-3xl">
           {/* toggle + mode label */}
           <div className="mb-8 flex items-center gap-4">
             <button
@@ -59,7 +59,7 @@ export default function HomePage() {
           </div>
 
           {/* cards */}
-          <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-4 sm:gap-6">
             {!isMemoryMode && (
               <CreateGroupCard
                 onClick={() => {

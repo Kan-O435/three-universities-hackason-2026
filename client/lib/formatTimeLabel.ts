@@ -8,8 +8,8 @@ export function formatTimeLabel(expiresAt: string): string {
   const totalHours = Math.floor(totalMinutes / 60)
   const totalDays = Math.floor(totalHours / 24)
 
-  if (totalDays >= 1) return `${totalDays}日`
-  if (totalHours >= 1) return `${totalHours}時間`
+  if (totalDays >= 1) return `${totalDays}d`
+  if (totalHours >= 1) return `${totalHours}h`
 
   const mm = String(totalMinutes).padStart(2, "0")
   const ss = String(totalSeconds % 60).padStart(2, "0")

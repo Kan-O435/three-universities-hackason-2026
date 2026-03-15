@@ -16,13 +16,11 @@ export default function GroupCard({
       type="button"
       onClick={onClick}
       className={`
-        flex h-[150px] w-[150px] shrink-0 flex-col items-center justify-center
+        flex w-full aspect-square flex-col items-center justify-center
         rounded-[var(--radius-card)]
         shadow-[var(--shadow-card)]
         transition-[transform,box-shadow] duration-200
         hover:-translate-y-1
-        sm:h-[160px] sm:w-[160px]
-        md:h-[180px] md:w-[180px]
         cursor-pointer
         ${isMemoryMode ? "bg-[var(--color-memory)]" : "bg-[var(--color-accent-2)]"}
       `}

@@ -79,22 +79,22 @@ export default function NewRoomPage() {
 		const trimmedDescription = description.trim();
 
 		if (!trimmedName) {
-			setNotice({ type: "error", text: "ルーム名を入力してください。" });
+			setNotice({ type: "error", text: "Please enter a room name." });
 			return;
 		}
 
 		if (trimmedName.length > 50) {
-			setNotice({ type: "error", text: "ルーム名は50文字以内で入力してください。" });
+			setNotice({ type: "error", text: "Room name must be 50 characters or less." });
 			return;
 		}
 
 		if (!trimmedDescription) {
-			setNotice({ type: "error", text: "概要を入力してください。" });
+			setNotice({ type: "error", text: "Please enter a description." });
 			return;
 		}
 
 		if (trimmedDescription.length > 200) {
-			setNotice({ type: "error", text: "概要は200文字以内で入力してください。" });
+			setNotice({ type: "error", text: "Description must be 200 characters or less." });
 			return;
 		}
 
@@ -102,7 +102,7 @@ export default function NewRoomPage() {
 		if (!expiresAtIso) {
 			setNotice({
 				type: "error",
-				text: "有効期限の形式が不正です。日本時間で日時を選択してください。",
+				text: "Invalid date format. Please enter a valid date and time.",
 			});
 			return;
 		}
@@ -110,7 +110,7 @@ export default function NewRoomPage() {
 		if (new Date(expiresAtIso).getTime() <= Date.now()) {
 			setNotice({
 				type: "error",
-				text: "有効期限は現在時刻より後の日時を指定してください。",
+				text: "Expiry must be set to a future date and time.",
 			});
 			return;
 		}
@@ -137,13 +137,13 @@ export default function NewRoomPage() {
 						className="text-2xl font-semibold tracking-tight sm:text-3xl"
 						style={{ color: "var(--color-text)" }}
 					>
-						ルームを作成
+						Create Room
 					</h2>
 					<p
 						className="mt-2 text-sm leading-7 sm:text-base"
 						style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}
 					>
-						ルーム名・有効期限・概要を入力して、新しいチャットルームを作成します。
+						Enter a room name, expiry date, and description to create a new chat room.
 					</p>
 
 					<form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
@@ -153,7 +153,7 @@ export default function NewRoomPage() {
 								className="text-sm font-medium"
 								style={{ color: "var(--color-text)" }}
 							>
-								ルーム名
+								Room Name
 							</label>
 							<input
 								id="room-name"
@@ -166,7 +166,7 @@ export default function NewRoomPage() {
 									setRoomName(event.target.value);
 								}}
 								disabled={isSubmitting}
-								placeholder="例: 卒業旅行の相談"
+								placeholder="e.g. Hackathon planning"
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
 								style={{
 									borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
@@ -182,7 +182,7 @@ export default function NewRoomPage() {
 								className="text-sm font-medium"
 								style={{ color: "var(--color-text)" }}
 							>
-								有効期限
+								Expires At
 							</label>
 							<input
 								id="expires-at"
@@ -205,7 +205,7 @@ export default function NewRoomPage() {
 								className="text-xs"
 								style={{ color: "color-mix(in srgb, var(--color-text) 70%, white)" }}
 							>
-								日本時間（JST）で指定してください。
+								Enter the date and time in JST (Japan Standard Time).
 							</p>
 						</div>
 
@@ -215,7 +215,7 @@ export default function NewRoomPage() {
 								className="text-sm font-medium"
 								style={{ color: "var(--color-text)" }}
 							>
-								概要
+								Description
 							</label>
 							<textarea
 								id="description"
@@ -227,7 +227,7 @@ export default function NewRoomPage() {
 									setDescription(event.target.value);
 								}}
 								disabled={isSubmitting}
-								placeholder="このルームで話す内容を簡単に入力してください。"
+								placeholder="Briefly describe what this room is for."
 								rows={4}
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
 								style={{
@@ -245,7 +245,7 @@ export default function NewRoomPage() {
 							className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide text-white transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
 							style={{ backgroundColor: "var(--color-accent-2)" }}
 						>
-							{isSubmitting ? "作成中..." : "ルームを作成"}
+							{isSubmitting ? "Creating..." : "Create Room"}
 						</button>
 					</form>
 

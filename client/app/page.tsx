@@ -31,8 +31,8 @@ export default function Home() {
   };
 
   return (
-    <main className="mx-auto flex min-h-full w-full max-w-(--max-width-content) items-center px-(--page-padding) py-8 md:py-12">
-        <div className="grid w-full grid-cols-1 items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+    <main className="mx-auto flex min-h-full w-full max-w-(--max-width-content) flex-col px-(--page-padding) py-8 md:py-12">
+        <div className="my-auto grid w-full grid-cols-1 items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
           <section
             className="rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8"
             style={{
@@ -47,7 +47,7 @@ export default function Home() {
             >
               <Image
                 src="/illustrations/flash-sns-hero.svg"
-                alt="期限つきコミュニティで瞬間的な交流が生まれる様子"
+                alt=""
                 width={760}
                 height={440}
                 className="h-auto w-full"
@@ -60,12 +60,12 @@ export default function Home() {
               className="mt-4 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl"
               style={{ color: "var(--color-text)" }}
             >
-              イベント期間だけ使う<br/>短期コミュニティ向けSNS
+              A Social Space for<br/>Short-Term Communities
             </h2>
 
             <p className="mt-3 text-sm leading-7 sm:text-base" style={{ color: "color-mix(in srgb, var(--color-text) 84%, white)" }}>
-              ハッカソンや授業のあいだだけ使えるチャットです。
-              終了後はつながりが残らないので、必要な人とだけ次の連絡先を交換できます。
+              Chat designed for hackathons, classes, and events.
+              No lingering connections after it ends — exchange contacts only with the people you need.
             </p>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
@@ -77,10 +77,10 @@ export default function Home() {
                 }}
               >
                 <h3 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-                  その場ですぐ参加
+                  Join Instantly
                 </h3>
                 <p className="mt-1 text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-                  招待リンクからすぐ入室。初対面でも会話を始めやすい設計です。
+                  Jump in via invite link. Easy to start conversations even with strangers.
                 </p>
               </article>
 
@@ -92,10 +92,10 @@ export default function Home() {
                 }}
               >
                 <h3 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-                  期限つきで集中
+                  Stay Focused
                 </h3>
                 <p className="mt-1 text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-                  残り時間が見えるので、いま必要な相談に集中できます。
+                  See the time remaining and focus on what matters right now.
                 </p>
               </article>
 
@@ -107,10 +107,10 @@ export default function Home() {
                 }}
               >
                 <h3 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-                  終了後は匿名化
+                  Fades After
                 </h3>
                 <p className="mt-1 text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-                  期間終了後は名前が外れ、会話の流れだけを見返せます。
+                  Names are removed after the period ends — only the conversation flow remains.
                 </p>
               </article>
             </div>
@@ -129,13 +129,13 @@ export default function Home() {
               className="text-2xl font-semibold tracking-tight sm:text-3xl text-center"
               style={{ color: "var(--color-text)" }}
             >
-              ログイン
+              Log In
             </h2>
 
             <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-                  メールアドレス
+                  Email
                 </label>
                 <input
                   id="email"
@@ -155,7 +155,7 @@ export default function Home() {
 
               <div className="space-y-1.5">
                 <label htmlFor="password" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-                  パスワード
+                  Password
                 </label>
                 <input
                   id="password"
@@ -192,18 +192,18 @@ export default function Home() {
                 className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
                 style={{ backgroundColor: "var(--color-accent-2)", color: "white" }}
               >
-                {isSubmitting ? "送信中..." : "ログイン"}
+                {isSubmitting ? "Signing in..." : "Log In"}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-              アカウントをお持ちでない方は{" "}
+              Don&apos;t have an account?{" "}
               <Link
                 href="/signup"
                 className="font-semibold underline decoration-2 underline-offset-4"
                 style={{ color: "var(--color-accent-2)" }}
               >
-                新規登録はこちら
+                Sign up here
               </Link>
             </p>
           </section>
