@@ -1,21 +1,23 @@
+import Avatar from "./Avatar";
+import { getAvatarColor } from "../lib/getAvatarColor";
+
 type ChatMessageProps = {
+  roomId: string;
   name: string;
   message: string;
   side?: "left" | "right";
-  avatarText?: string;
-  avatarColor?: string;
   isMemoryMode?: boolean;
 };
 
 export default function ChatMessage({
+  roomId,
   name,
   message,
   side = "left",
-  avatarText = "A",
-  avatarColor = "var(--color-avatar-1)",
   isMemoryMode = false,
 }: ChatMessageProps) {
   const isRight = side === "right";
+  const avatarColor = getAvatarColor(roomId, name);
 
   return (
     <div className={`flex w-full ${isRight ? "justify-end" : "justify-start"}`}>
@@ -25,17 +27,15 @@ export default function ChatMessage({
         }`}
       >
         {/* Avatar */}
-        <div
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-[var(--color-surface)]"
-          style={{
-            backgroundColor: isMemoryMode ? "var(--color-memory)" : avatarColor,
-            color: isMemoryMode
-              ? "var(--color-text)"
-              : "var(--color-surface)",
-          }}
-        >
-          {isMemoryMode ? "◯" : avatarText}
-        </div>
+        {!isRight && (
+          <Avatar
+            name={name}
+            color={avatarColor}
+            isMemoryMode={isMemoryMode}
+            size="md"
+          />
+        )}
+        
 
         {/* Message area */}
         <div
