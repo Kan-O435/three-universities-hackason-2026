@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Header from "@/components/Header";
 import GroupCard from "@/components/GroupCard";
 import CreateGroupCard from "@/components/CreateGroupCard";
 import { getMyRooms } from "@/lib/rooms";
@@ -38,10 +37,7 @@ export default function HomePage() {
   const memoryRooms = rooms.filter((r) => isExpired(r.expires_at));
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)]">
-      <Header />
-
-      <main className="px-[var(--page-padding)] py-6">
+    <main className="px-[var(--page-padding)] py-6">
         <div className="mx-auto max-w-[var(--max-width-content)]">
           {/* toggle + mode label */}
           <div className="mb-8 flex items-center gap-4">
@@ -94,7 +90,6 @@ export default function HomePage() {
               ))}
           </div>
         </div>
-      </main>
-    </div>
+    </main>
   );
 }

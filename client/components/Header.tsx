@@ -22,7 +22,7 @@ export default function Header() {
 
 	return (
 		<header
-			className="w-full"
+			className="w-full shrink-0"
 			style={{
 				height: "56px",
 				backgroundColor: "var(--color-accent-1)",

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Header from "@/components/Header";
 import { getRoomPreview, joinRoom } from "@/lib/rooms";
 import type { RoomPreview } from "@/types";
 
@@ -47,10 +46,7 @@ export default function JoinPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F6F7F9] text-[#4A5568]">
-      <Header />
-
-      <main className="flex flex-1 items-center justify-center px-4 py-8">
+    <main className="flex min-h-full flex-col items-center justify-center bg-[#F6F7F9] px-4 py-8 text-[#4A5568]">
         <div className="w-full max-w-md rounded-2xl border border-[#E5E7EB] bg-white p-6 shadow-sm">
 
           {fetchError ? (
@@ -97,7 +93,6 @@ export default function JoinPage() {
           )}
 
         </div>
-      </main>
-    </div>
+    </main>
   );
 }

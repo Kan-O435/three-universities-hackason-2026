@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Header from "@/components/Header";
 import { useAuth } from "@/context/AuthContext";
 import { createRoom } from "@/lib/rooms";
 
@@ -126,10 +125,7 @@ export default function NewRoomPage() {
 	if (loading || !user) return null;
 
 	return (
-		<div className="min-h-screen bg-background">
-			<Header />
-
-			<main className="mx-auto w-full max-w-(--max-width-content) px-(--page-padding) py-8 md:py-12">
+		<main className="mx-auto w-full max-w-(--max-width-content) px-(--page-padding) py-8 md:py-12">
 				<section
 					className="mx-auto w-full max-w-2xl rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8"
 					style={{
@@ -275,7 +271,6 @@ export default function NewRoomPage() {
 						</p>
 					)}
 				</section>
-			</main>
-		</div>
+		</main>
 	);
 }
