@@ -1,4 +1,6 @@
 import Link from "next/link";
+import TimeLimitCard from "@/components/TimeLimitCard";
+import QrInviteCard from "@/components/QrInviteCard";
 
 type SidebarProps = {
   roomId: string;
@@ -51,17 +53,9 @@ export default function Sidebar({ roomId, activeChat }: SidebarProps) {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-        <p className="mb-2 text-sm font-bold text-[#4A5568]">TimeLimit</p>
-        <p className="text-center text-[22px] font-bold text-[#4A5568]">
-          48:30:19
-        </p>
-      </section>
+      <TimeLimitCard timeText="20:19" />
 
-      <section className="rounded-2xl border border-[#E5E7EB] bg-white p-4 shadow-sm">
-        <p className="mb-3 text-sm font-bold text-[#4A5568]">QR</p>
-        <div className="mx-auto h-16 w-16 rounded-xl bg-[#D9D9D9]" />
-      </section>
+      <QrInviteCard />
     </aside>
   );
 }
