@@ -13,6 +13,8 @@ export default function TestPage() {
   const [inviteCode, setInviteCode] = useState("")
   const [results, setResults] = useState<Result[]>([])
 
+  if (process.env.NODE_ENV === "production") return null
+
   function log(label: string, ok: boolean, message: string) {
     setResults((prev) => [...prev, { ok, label, message }])
   }

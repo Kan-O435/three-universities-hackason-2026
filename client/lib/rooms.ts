@@ -4,7 +4,7 @@ import type { Room, RoomPreview } from "@/types"
 export async function getMyRooms(): Promise<Room[]> {
   const { data, error } = await supabase
     .from("rooms")
-    .select("*")
+    .select("id, name, description, expires_at, owner_id, invite_code, created_at, updated_at")
     .order("expires_at", { ascending: true })
   if (error) throw error
   return data as Room[]
@@ -32,7 +32,8 @@ export async function createRoom(
   description: string | null,
   expiresAt: string,
 ): Promise<Room> {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: userError } = await supabase.auth.getUser()
+  if (userError) throw userError
   if (!user) throw new Error("Not authenticated")
   const { data, error } = await supabase
     .from("rooms")
