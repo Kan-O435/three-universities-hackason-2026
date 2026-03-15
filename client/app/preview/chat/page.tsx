@@ -8,6 +8,7 @@ export default function PreviewChatPage() {
       <div className="mx-auto flex max-w-[720px] flex-col gap-4">
         <ChatMessage
           roomId={roomId}
+          userId="user-1"
           name="Jukiya"
           message="こんにちは！このグループどうしますか？"
           side="left"
@@ -15,6 +16,7 @@ export default function PreviewChatPage() {
 
         <ChatMessage
           roomId={roomId}
+          userId="user-2"
           name="Yuki"
           message="まず役割分担を決めたいです。"
           side="right"
@@ -22,6 +24,7 @@ export default function PreviewChatPage() {
 
         <ChatMessage
           roomId={roomId}
+          userId="user-3"
           name="Taro"
           message="長めの文章を入れたときの見た目も確認しておきたいです。改行や幅の感じが変じゃないか見ます。"
           side="left"
@@ -29,6 +32,7 @@ export default function PreviewChatPage() {
 
         <ChatMessage
           roomId={roomId}
+          userId="user-1"
           name="A"
           message="これは思い出モードの表示です。"
           side="left"

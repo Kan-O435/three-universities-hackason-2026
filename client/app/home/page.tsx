@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/Header";
 import GroupCard from "@/components/GroupCard";
 import CreateGroupCard from "@/components/CreateGroupCard";
@@ -19,8 +20,15 @@ const memoryGroups = [
 ];
 
 export default function HomePage() {
-  const [isMemoryMode, setIsMemoryMode] = useState(false);
   const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isMemoryMode, setIsMemoryMode] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) router.replace("/");
+  }, [user, loading, router]);
+
+  if (loading || !user) return null;
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
