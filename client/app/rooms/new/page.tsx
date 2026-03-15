@@ -1,9 +1,8 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
-import { supabase } from "@/lib/supabase";
 
 type Notice = {
 	type: "success" | "error";
@@ -57,34 +56,15 @@ export default function NewRoomPage() {
 	const [description, setDescription] = useState("");
 	const [notice, setNotice] = useState<Notice | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
-	const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-
-	useEffect(() => {
-		const checkAuth = async () => {
-			const {
-				data: { user },
-			} = await supabase.auth.getUser();
-
-			if (!user) {
-				router.replace("/");
-				return;
-			}
-
-			setIsCheckingAuth(false);
-		};
-
-		void checkAuth();
-	}, [router]);
 
 	const canSubmit = useMemo(() => {
 		return (
 			!isSubmitting &&
-			!isCheckingAuth &&
 			roomName.trim().length > 0 &&
 			description.trim().length > 0 &&
 			expiresAtLocal.length > 0
 		);
-	}, [description, expiresAtLocal, isCheckingAuth, isSubmitting, roomName]);
+	}, [description, expiresAtLocal, isSubmitting, roomName]);
 
 	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -132,58 +112,11 @@ export default function NewRoomPage() {
 
 		setIsSubmitting(true);
 
-		const {
-			data: { user },
-			error: userError,
-		} = await supabase.auth.getUser();
-
-		if (userError || !user) {
-			setNotice({
-				type: "error",
-				text: "ログイン情報を確認できませんでした。再度ログインしてください。",
-			});
-			setIsSubmitting(false);
-			router.replace("/");
-			return;
-		}
-
-		const { data, error } = await supabase
-			.from("rooms")
-			.insert({
-				name: trimmedName,
-				description: trimmedDescription,
-				owner_id: user.id,
-				expires_at: expiresAtIso,
-			})
-			.select("id")
-			.single();
-
-		if (error) {
-			const lower = error.message.toLowerCase();
-			let message = "ルームの作成に失敗しました。時間をおいて再度お試しください。";
-
-			if (lower.includes("check") || lower.includes("expires_at")) {
-				message = "有効期限が不正です。現在より後の日時を指定してください。";
-			} else if (lower.includes("permission") || lower.includes("policy")) {
-				message = "ルーム作成の権限がありません。ログイン状態を確認してください。";
-			}
-
-			setNotice({ type: "error", text: message });
-			setIsSubmitting(false);
-			return;
-		}
-
-		if (!data?.id) {
-			setNotice({
-				type: "error",
-				text: "ルームIDの取得に失敗しました。もう一度お試しください。",
-			});
-			setIsSubmitting(false);
-			return;
-		}
-
-		setNotice({ type: "success", text: "ルームを作成しました。" });
-		router.push(`/rooms/${data.id}`);
+		// UI先行開発中はDB保存を行わず、仮IDで詳細画面へ遷移する。
+		const mockRoomId = `preview-${Date.now().toString(36)}`;
+		setNotice({ type: "success", text: "UIプレビュー用のルームを作成しました。" });
+		setIsSubmitting(false);
+		router.push(`/rooms/${mockRoomId}`);
 	};
 
 	return (
@@ -208,7 +141,7 @@ export default function NewRoomPage() {
 						className="mt-2 text-sm leading-7 sm:text-base"
 						style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}
 					>
-						ルーム名・有効期限・概要を入力して、新しいチャットルームを作成します。
+						ルーム名・有効期限・概要を入力して、新しいチャットルームを作成します（UIプレビュー中）。
 					</p>
 
 					<form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -230,7 +163,7 @@ export default function NewRoomPage() {
 								onChange={(event) => {
 									setRoomName(event.target.value);
 								}}
-								disabled={isSubmitting || isCheckingAuth}
+								disabled={isSubmitting}
 								placeholder="例: 卒業旅行の相談"
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
 								style={{
@@ -258,7 +191,7 @@ export default function NewRoomPage() {
 								onChange={(event) => {
 									setExpiresAtLocal(event.target.value);
 								}}
-								disabled={isSubmitting || isCheckingAuth}
+								disabled={isSubmitting}
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
 								style={{
 									borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
@@ -291,7 +224,7 @@ export default function NewRoomPage() {
 								onChange={(event) => {
 									setDescription(event.target.value);
 								}}
-								disabled={isSubmitting || isCheckingAuth}
+								disabled={isSubmitting}
 								placeholder="このルームで話す内容を簡単に入力してください。"
 								rows={4}
 								className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:cursor-not-allowed disabled:opacity-70"
