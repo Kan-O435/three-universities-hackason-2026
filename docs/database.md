@@ -1,5 +1,10 @@
 # データベース設計・RLS定義
 
+> **対象環境：Supabase（PostgreSQL 15以上）**
+> このドキュメントはSupabaseを前提として設計されています。SECURITY DEFINER関数はSQL Editorから作成するため、関数所有者が `postgres`（スーパーユーザー）となりRLSを確実にバイパスできます。一般的なPostgreSQL環境では別途権限設定が必要です。
+
+---
+
 ## テーブル設計
 
 ### `users`
@@ -97,6 +102,7 @@
 ### 共通関数（無限ループ防止）
 
 `room_members` を自己参照するとRLSが無限再帰になるため、SECURITY DEFINER関数を介して解決する。
+Supabase環境では関数所有者が `postgres` になるためRLSを確実にバイパスできる。
 
 ```sql
 create or replace function public.is_room_member(p_room_id uuid)
@@ -116,17 +122,53 @@ $$;
 
 ---
 
+### 参加ページ用関数（未ログインユーザー向け）
+
+未ログインユーザーが参加ページでルーム情報を確認できるように、room_idを受け取って必要最小限の情報だけを返すSECURITY DEFINER関数を用意する。
+`rooms`・`users` テーブルへのanon SELECTは廃止し、この関数経由のみ許可する。
+
+フロントエンドでは `supabase.from()` ではなく `supabase.rpc('get_room_preview', { p_room_id })` で呼び出す。
+
+```sql
+create or replace function public.get_room_preview(p_room_id uuid)
+returns table (
+  id          uuid,
+  name        text,
+  description text,
+  expires_at  timestamptz,
+  owner_name  text
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    r.id,
+    r.name,
+    r.description,
+    r.expires_at,
+    u.display_name
+  from public.rooms r
+  join public.users u on u.id = r.owner_id
+  where r.id = p_room_id;
+$$;
+
+grant execute on function public.get_room_preview to anon, authenticated;
+```
+
+---
+
 ### `users`
 | 操作 | ロール | 条件 |
 |---|---|---|
-| SELECT | anon, authenticated | 常に許可（参加ページでオーナー名表示のため） |
+| SELECT | authenticated | 常に許可（チャット内でメンバー名表示のため） |
 | INSERT | — | 不可（on_auth_user_createdトリガーで自動作成） |
 | UPDATE | authenticated | `auth.uid() = id`（自分のみ） |
 
 ### `rooms`
 | 操作 | ロール | 条件 |
 |---|---|---|
-| SELECT | anon, authenticated | 常に許可（未ログインでも参加ページ表示のため） |
+| SELECT | authenticated | 常に許可 |
 | INSERT | authenticated | `owner_id = auth.uid()` |
 | UPDATE | authenticated | `auth.uid() = owner_id`（expires_at・owner_idはトリガーで変更不可） |
 | DELETE | — | 不可 |
@@ -216,7 +258,7 @@ returns trigger
 language plpgsql
 as $$
 begin
-  new.updated_at = now();
+  new.updated_at := now();
   return new;
 end;
 $$;
@@ -258,6 +300,8 @@ begin
 end;
 $$;
 
+-- RLS回避用メンバー判定関数
+-- Supabase環境では関数所有者がpostgresになるためRLSを確実にバイパスできる
 create or replace function public.is_room_member(p_room_id uuid)
 returns boolean
 language sql
@@ -271,6 +315,34 @@ as $$
     and   user_id = auth.uid()
   );
 $$;
+
+-- 未ログインユーザー向け参加ページ用関数
+-- rooms・usersへのanon SELECTを廃止し、この関数経由のみ許可する
+-- フロントエンド: supabase.rpc('get_room_preview', { p_room_id })
+create or replace function public.get_room_preview(p_room_id uuid)
+returns table (
+  id          uuid,
+  name        text,
+  description text,
+  expires_at  timestamptz,
+  owner_name  text
+)
+language sql
+security definer
+set search_path = public
+as $$
+  select
+    r.id,
+    r.name,
+    r.description,
+    r.expires_at,
+    u.display_name
+  from public.rooms r
+  join public.users u on u.id = r.owner_id
+  where r.id = p_room_id;
+$$;
+
+grant execute on function public.get_room_preview to anon, authenticated;
 
 -- =====================================================
 -- Triggers
@@ -307,9 +379,9 @@ alter table public.room_members enable row level security;
 alter table public.messages     enable row level security;
 
 -- users
-create policy "users: public select"
+create policy "users: authenticated select"
   on public.users for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
 create policy "users: update own"
@@ -319,9 +391,9 @@ create policy "users: update own"
   with check (auth.uid() = id);
 
 -- rooms
-create policy "rooms: public select"
+create policy "rooms: authenticated select"
   on public.rooms for select
-  to anon, authenticated
+  to authenticated
   using (true);
 
 create policy "rooms: authenticated insert"
@@ -378,3 +450,4 @@ create policy "messages: members insert"
 - **期限切れルームのUPDATE不可**：`expires_at > now()` のCHECK制約により、期限切れたルームへのUPDATEはすべて失敗する。アーカイブ後にname/descriptionを変更できないのは意図的な副作用として許容している
 - **オーナーのアカウント削除不可**：`rooms.owner_id` の ON DELETE RESTRICT により、ルームを所有するユーザーはauth.usersから削除できない。ユーザー削除機能は実装しないため問題なし
 - **表示名なしでのサインアップ不可**：`handle_new_user` トリガーがNOT NULL制約に違反してエラーになるため、フロントエンドで必須入力として制御する
+- **参加ページのルーム情報取得**：未ログイン状態では `supabase.from('rooms')` は使えない。`supabase.rpc('get_room_preview', { p_room_id })` を使うこと
