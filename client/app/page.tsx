@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import Header from "@/components/Header";
 import { signIn } from "@/lib/auth";
 import { useAuth } from "@/context/AuthContext";
 
@@ -32,10 +31,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-
-      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-(--max-width-content) items-center px-(--page-padding) py-8 md:py-12">
+    <main className="mx-auto flex min-h-full w-full max-w-(--max-width-content) items-center px-(--page-padding) py-8 md:py-12">
         <div className="grid w-full grid-cols-1 items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
           <section
             className="rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8"
@@ -212,7 +208,6 @@ export default function Home() {
             </p>
           </section>
         </div>
-      </main>
-    </div>
+    </main>
   );
 }

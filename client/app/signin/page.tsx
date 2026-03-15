@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
 import { signIn } from "@/lib/auth";
-import Header from "@/components/Header";
 
 function SignInForm() {
   const router = useRouter();
@@ -38,7 +37,7 @@ function SignInForm() {
   const signUpHref = raw ? `/signup?redirect=${encodeURIComponent(raw)}` : "/signup";
 
   return (
-    <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
+    <div className="flex min-h-full items-center justify-center px-4">
       <div
         className="w-full max-w-md rounded-(--radius-card) border p-8 shadow-(--shadow-card)"
         style={{
@@ -134,11 +133,8 @@ function SignInForm() {
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <Suspense>
-        <SignInForm />
-      </Suspense>
-    </div>
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

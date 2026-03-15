@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { getProfile, updateDisplayName, signOut } from "@/lib/auth";
-import Header from "@/components/Header";
 
 type Notice = { type: "success" | "error"; text: string };
 
@@ -64,10 +63,7 @@ export default function ProfilePage() {
 	if (loading || !user) return null;
 
 	return (
-		<div className="min-h-screen bg-background">
-			<Header />
-
-			<main className="mx-auto w-full max-w-(--max-width-content) px-(--page-padding) py-8 md:py-12">
+		<main className="mx-auto w-full max-w-(--max-width-content) px-(--page-padding) py-8 md:py-12">
 				<section
 					className="mx-auto w-full max-w-xl rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8"
 					style={{
@@ -138,7 +134,6 @@ export default function ProfilePage() {
 						ログアウト
 					</button>
 				</section>
-			</main>
-		</div>
+		</main>
 	);
 }

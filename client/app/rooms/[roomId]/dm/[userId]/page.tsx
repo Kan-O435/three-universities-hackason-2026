@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import ChatPanel from "@/components/ChatPanel";
 import { getRoomDetail, getRoomMembers } from "@/lib/rooms";
@@ -36,9 +35,7 @@ export default function DmPage() {
   const chatName = members.find((m) => m.userId === userId)?.displayName ?? "Unknown";
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-[#F6F7F9] text-[#4A5568]">
-      <Header />
-
+    <div className="flex h-full flex-col overflow-hidden bg-[#F6F7F9] text-[#4A5568]">
       <main className="mx-auto flex min-h-0 w-full max-w-[1400px] flex-1 flex-col gap-4 px-3 py-3 md:flex-row md:gap-5 md:px-5 md:py-4">
         <Sidebar
           roomId={roomId}
