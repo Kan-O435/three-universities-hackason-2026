@@ -51,6 +51,7 @@ export async function getRoomMembers(
     .from("room_members")
     .select("user_id, users(display_name)")
     .eq("room_id", roomId)
+    .order("joined_at", { ascending: true })
   if (error) throw error
   return (data ?? []).map((row) => {
     const users = row.users

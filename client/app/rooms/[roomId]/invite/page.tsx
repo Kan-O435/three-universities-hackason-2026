@@ -32,9 +32,11 @@ export default function InviteQrPage() {
     getRoomDetail(roomId)
       .then((r) => {
         setRoom(r);
-        return getProfile(r.owner_id);
+        return getProfile(r.owner_id).then(
+          (profile) => setOwnerName(profile.display_name),
+          () => setOwnerName("Unknown"),
+        );
       })
-      .then((profile) => setOwnerName(profile.display_name))
       .catch(() => router.replace("/home"));
   }, [roomId, user, router]);
 
