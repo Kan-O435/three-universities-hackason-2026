@@ -1,14 +1,84 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import Image from "next/image";
-import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+
+type Mode = "login" | "signup";
 
 export default function Home() {
+  const router = useRouter();
+  const [mode, setMode] = useState<Mode>("login");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setMessage(null);
+    setLoading(true);
+
+    try {
+      if (mode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        router.push("/home");
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { display_name: name },
+          },
+        });
+        if (error) throw error;
+        router.push("/home");
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "エラーが発生しました";
+      // Supabaseのエラーメッセージを日本語に変換
+      if (msg.includes("Invalid login credentials")) {
+        setError("メールアドレスまたはパスワードが正しくありません");
+      } else if (msg.includes("User already registered")) {
+        setError("このメールアドレスはすでに登録されています");
+      } else if (msg.includes("Password should be at least")) {
+        setError("パスワードは6文字以上で入力してください");
+      } else {
+        setError(msg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const switchMode = (newMode: Mode) => {
+    setMode(newMode);
+    setError(null);
+    setMessage(null);
+  };
+
+  const inputStyle = {
+    borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
+    backgroundColor: "var(--color-surface)",
+    color: "var(--color-text)",
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
 
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-(--max-width-content) items-center px-(--page-padding) py-8 md:py-12">
         <div className="grid w-full grid-cols-1 items-stretch gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:gap-8">
+          {/* 左カラム: サービス紹介 */}
           <section
             className="rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8"
             style={{
@@ -36,7 +106,7 @@ export default function Home() {
               className="mt-4 text-2xl font-semibold leading-tight tracking-tight sm:text-3xl"
               style={{ color: "var(--color-text)" }}
             >
-              イベント期間だけ使う<br/>短期コミュニティ向けSNS
+              イベント期間だけ使う<br />短期コミュニティ向けSNS
             </h2>
 
             <p className="mt-3 text-sm leading-7 sm:text-base" style={{ color: "color-mix(in srgb, var(--color-text) 84%, white)" }}>
@@ -92,6 +162,7 @@ export default function Home() {
             </div>
           </section>
 
+          {/* 右カラム: ログイン / 新規登録フォーム */}
           <section
             className="w-full rounded-(--radius-card) border p-6 shadow-(--shadow-card) sm:p-8 lg:max-w-md lg:justify-self-end"
             style={{
@@ -105,10 +176,11 @@ export default function Home() {
               className="text-2xl font-semibold tracking-tight sm:text-3xl text-center"
               style={{ color: "var(--color-text)" }}
             >
-              ログイン
+              {mode === "login" ? "ログイン" : "新規登録"}
             </h2>
 
-            <form className="mt-6 space-y-4" action="#" method="post">
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+              {/* 名前フィールド */}
               <div className="space-y-1.5">
                 <label htmlFor="name" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
                   名前
@@ -118,13 +190,11 @@ export default function Home() {
                   name="name"
                   type="text"
                   placeholder="山田 太郎"
+                  required={mode === "signup"}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
                   className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2"
-                  style={{
-                    borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
-                    backgroundColor: "var(--color-surface)",
-                    color: "var(--color-text)",
-                    boxShadow: "0 0 0 0 transparent",
-                  }}
+                  style={inputStyle}
                 />
               </div>
 
@@ -137,12 +207,11 @@ export default function Home() {
                   name="email"
                   type="email"
                   placeholder="sample@example.com"
-                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition"
-                  style={{
-                    borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
-                    backgroundColor: "var(--color-surface)",
-                    color: "var(--color-text)",
-                  }}
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2"
+                  style={inputStyle}
                 />
               </div>
 
@@ -155,36 +224,85 @@ export default function Home() {
                   name="password"
                   type="password"
                   placeholder="••••••••"
-                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition"
-                  style={{
-                    borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
-                    backgroundColor: "var(--color-surface)",
-                    color: "var(--color-text)",
-                  }}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2"
+                  style={inputStyle}
                 />
               </div>
 
+              {/* エラーメッセージ */}
+              {error && (
+                <p
+                  className="rounded-xl border px-4 py-2.5 text-sm"
+                  style={{
+                    color: "#dc2626",
+                    backgroundColor: "#fef2f2",
+                    borderColor: "#fecaca",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
+              {/* 成功メッセージ */}
+              {message && (
+                <p
+                  className="rounded-xl border px-4 py-2.5 text-sm"
+                  style={{
+                    color: "#16a34a",
+                    backgroundColor: "#f0fdf4",
+                    borderColor: "#bbf7d0",
+                  }}
+                >
+                  {message}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition hover:brightness-95"
+                disabled={loading}
+                className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition hover:brightness-95 disabled:opacity-60 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: "var(--color-accent-2)",
                   color: "white",
                 }}
               >
-                ログイン
+                {loading
+                  ? "処理中..."
+                  : mode === "login"
+                  ? "ログイン"
+                  : "アカウントを作成"}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
-              アカウントをお持ちでない方は{" "}
-              <Link
-                href="#"
-                className="font-semibold underline decoration-2 underline-offset-4"
-                style={{ color: "var(--color-accent-2)" }}
-              >
-                新規登録はこちら
-              </Link>
+              {mode === "login" ? (
+                <>
+                  アカウントをお持ちでない方は{" "}
+                  <button
+                    type="button"
+                    onClick={() => switchMode("signup")}
+                    className="font-semibold underline decoration-2 underline-offset-4 cursor-pointer"
+                    style={{ color: "var(--color-accent-2)" }}
+                  >
+                    新規登録はこちら
+                  </button>
+                </>
+              ) : (
+                <>
+                  すでにアカウントをお持ちの方は{" "}
+                  <button
+                    type="button"
+                    onClick={() => switchMode("login")}
+                    className="font-semibold underline decoration-2 underline-offset-4 cursor-pointer"
+                    style={{ color: "var(--color-accent-2)" }}
+                  >
+                    ログインはこちら
+                  </button>
+                </>
+              )}
             </p>
           </section>
         </div>
