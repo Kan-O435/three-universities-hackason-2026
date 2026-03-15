@@ -18,7 +18,7 @@ export default function ProfilePage() {
 	const [notice, setNotice] = useState<Notice | null>(null);
 
 	useEffect(() => {
-		if (!loading && !user) router.replace("/auth");
+		if (!loading && !user) router.replace("/signin");
 	}, [user, loading, router]);
 
 	useEffect(() => {

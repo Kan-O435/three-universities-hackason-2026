@@ -52,10 +52,14 @@ export async function getRoomMembers(
     .select("user_id, users(display_name)")
     .eq("room_id", roomId)
   if (error) throw error
-  return (data ?? []).map((row) => ({
-    userId: row.user_id,
-    displayName: (row.users as unknown as { display_name: string } | null)?.display_name ?? "",
-  }))
+  return (data ?? []).map((row) => {
+    const users = row.users
+    const user = Array.isArray(users) ? (users[0] ?? null) : users
+    return {
+      userId: row.user_id,
+      displayName: (user as { display_name: string } | null)?.display_name ?? "",
+    }
+  })
 }
 
 export async function joinRoom(roomId: string, inviteCode: string): Promise<void> {
