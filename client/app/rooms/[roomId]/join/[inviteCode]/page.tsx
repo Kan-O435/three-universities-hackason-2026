@@ -30,7 +30,14 @@ export default function JoinPage() {
     setIsJoining(true);
     joinRoom(roomId, inviteCode)
       .then(() => router.replace(`/rooms/${roomId}`))
-      .catch((err: Error) => setJoinError(err.message))
+      .catch((err: Error) => {
+        const msg = err.message.toLowerCase();
+        if (msg.includes("invite") || msg.includes("expired")) {
+          setJoinError("招待コードが不正か、有効期限が切れています。");
+        } else {
+          setJoinError("参加に失敗しました。もう一度お試しください。");
+        }
+      })
       .finally(() => setIsJoining(false));
   };
 

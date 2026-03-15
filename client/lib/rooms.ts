@@ -57,7 +57,7 @@ export async function getRoomMembers(
     const user = Array.isArray(users) ? (users[0] ?? null) : users
     return {
       userId: row.user_id,
-      displayName: (user as { display_name: string } | null)?.display_name ?? "",
+      displayName: (user as { display_name: string } | null)?.display_name ?? "Unknown",
     }
   })
 }

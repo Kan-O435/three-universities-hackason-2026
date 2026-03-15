@@ -17,6 +17,11 @@ export default function InviteQrPage() {
 
   const [room, setRoom] = useState<Room | null>(null);
   const [ownerName, setOwnerName] = useState("");
+  const [origin, setOrigin] = useState("");
+
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) router.replace("/");
@@ -33,9 +38,9 @@ export default function InviteQrPage() {
       .catch(() => router.replace("/home"));
   }, [roomId, user, router]);
 
-  if (loading || !user || !room) return null;
+  if (loading || !user || !room || !origin) return null;
 
-  const inviteUrl = `${window.location.origin}/rooms/${roomId}/join/${room.invite_code}`;
+  const inviteUrl = `${origin}/rooms/${roomId}/join/${room.invite_code}`;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F6F7F9] text-[#4A5568]">

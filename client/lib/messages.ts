@@ -8,7 +8,7 @@ export async function getMessages(roomId: string): Promise<Message[]> {
     .eq("room_id", roomId)
     .order("created_at", { ascending: true })
   if (error) throw error
-  return data.map((row) => ({
+  return (data ?? []).map((row) => ({
     ...row,
     users: Array.isArray(row.users) ? (row.users[0] ?? null) : row.users,
   })) as Message[]
