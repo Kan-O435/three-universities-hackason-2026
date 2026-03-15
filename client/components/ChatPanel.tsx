@@ -15,6 +15,7 @@ type ChatPanelProps = {
 
 export default function ChatPanel({ title, roomId, currentUserId, isMemoryMode }: ChatPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
+  const [sendError, setSendError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -28,7 +29,10 @@ export default function ChatPanel({ title, roomId, currentUserId, isMemoryMode }
   }, [messages]);
 
   const handleSend = (content: string) => {
-    sendMessage(roomId, content).catch(console.error);
+    setSendError(null);
+    sendMessage(roomId, content).catch(() => {
+      setSendError("メッセージの送信に失敗しました。もう一度お試しください。");
+    });
   };
 
   return (
@@ -57,6 +61,11 @@ export default function ChatPanel({ title, roomId, currentUserId, isMemoryMode }
       </div>
 
       <div className="shrink-0 pt-3">
+        {sendError && (
+          <p className="mb-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-600">
+            {sendError}
+          </p>
+        )}
         <ChatInput onSend={handleSend} isMemoryMode={isMemoryMode} />
       </div>
     </section>

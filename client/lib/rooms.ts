@@ -13,7 +13,7 @@ export async function getMyRooms(): Promise<Room[]> {
 export async function getRoomDetail(roomId: string): Promise<Room> {
   const { data, error } = await supabase
     .from("rooms")
-    .select("*")
+    .select("id, name, description, expires_at, owner_id, invite_code, created_at, updated_at")
     .eq("id", roomId)
     .single()
   if (error) throw error
