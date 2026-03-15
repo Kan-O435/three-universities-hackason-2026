@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
 import GroupCard from "@/components/GroupCard";
 import CreateGroupCard from "@/components/CreateGroupCard";
@@ -19,6 +20,7 @@ const memoryGroups = [
 
 export default function HomePage() {
   const [isMemoryMode, setIsMemoryMode] = useState(false);
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -47,7 +49,13 @@ export default function HomePage() {
 
           {/* cards */}
           <div className="grid grid-cols-1 justify-items-center gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {!isMemoryMode && <CreateGroupCard />}
+            {!isMemoryMode && (
+              <CreateGroupCard
+                onClick={() => {
+                  router.push("/rooms/new");
+                }}
+              />
+            )}
 
             {!isMemoryMode &&
               activeGroups.map((group) => (
