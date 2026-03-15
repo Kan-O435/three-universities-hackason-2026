@@ -25,7 +25,7 @@ export default function Avatar({
       className={`flex shrink-0 items-center justify-center rounded-full font-semibold ${sizeClass}`}
       style={{
         backgroundColor: isMemoryMode ? "var(--color-memory)" : color,
-        color: "var(--color-surface)",
+        color: isMemoryMode ? "var(--color-text)" : "var(--color-surface)",
       }}
     >
       {isMemoryMode ? "◯" : initial}
