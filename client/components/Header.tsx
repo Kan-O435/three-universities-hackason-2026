@@ -25,13 +25,13 @@ export default function Header() {
 		<header
 			className="w-full"
 			style={{
-				height: "88px",
+				height: "56px",
 				backgroundColor: "var(--color-accent-1)",
 			}}
 		>
 			<div className="mx-auto flex h-full w-full max-w-(--max-width-content) items-center justify-between px-(--page-padding)">
 				<h1
-					className="cursor-pointer font-bold text-2xl tracking-tight"
+					className="cursor-pointer hover:-translate-y-1 font-bold text-2xl tracking-tight"
 					style={{ color: "var(--color-text)" }}
 					onClick={() => {
 						navigateToHome();
@@ -46,7 +46,7 @@ export default function Header() {
 				<button
 					type="button"
 					onClick={navigateToMyPage}
-					className="flex h-15 w-15 items-center justify-center rounded-full text-lg font-semibold transition hover:brightness-95"
+					className="flex h-11 w-11 items-center justify-center rounded-full text-lg font-semibold cursor-pointer transition hover:brightness-95"
 					style={{
 						backgroundColor: "var(--color-bg)",
 						color: "var(--color-accent-2)",
