@@ -31,9 +31,14 @@ export async function getProfile(userId: string): Promise<UserProfile> {
 }
 
 export async function updateDisplayName(userId: string, displayName: string): Promise<void> {
-  const { error } = await supabase
+  const { error: dbError } = await supabase
     .from("users")
     .update({ display_name: displayName })
     .eq("id", userId)
-  if (error) throw error
+  if (dbError) throw dbError
+
+  const { error: authError } = await supabase.auth.updateUser({
+    data: { display_name: displayName },
+  })
+  if (authError) throw authError
 }

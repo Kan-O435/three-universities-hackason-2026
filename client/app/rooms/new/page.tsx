@@ -119,10 +119,8 @@ export default function NewRoomPage() {
 		setIsSubmitting(true);
 		createRoom(trimmedName, trimmedDescription, expiresAtIso)
 			.then((room) => router.push(`/rooms/${room.id}`))
-			.catch((err: Error) => {
-				setNotice({ type: "error", text: err.message });
-				setIsSubmitting(false);
-			});
+			.catch((err: Error) => setNotice({ type: "error", text: err.message }))
+			.finally(() => setIsSubmitting(false));
 	};
 
 	if (loading || !user) return null;

@@ -22,7 +22,8 @@ export default function AuthPage() {
     if (!loading && user) router.replace("/home");
   }, [user, loading, router]);
 
-  const redirectTo = searchParams.get("redirect") ?? "/home";
+  const raw = searchParams.get("redirect") ?? "";
+  const redirectTo = raw.startsWith("/") && !raw.startsWith("//") ? raw : "/home";
 
   const handleSignUp = () => {
     if (!displayName.trim()) {
