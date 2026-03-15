@@ -1,26 +1,123 @@
 @import "tailwindcss";
 
+/* Global Design Tokens
+   - Colors
+   - Fonts
+   - Layout
+   - UI common values */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Font */
+  --font-sans: "Inter", "Noto Sans JP", sans-serif;
+
+  /* Base colors */
+  --color-bg: #f6f7f9;
+  --color-text: #334155;
+  --color-surface: #ffffff;
+
+  /* Accent colors */
+  --color-accent-1: #e8cfc4;
+  --color-accent-2: #7fa9c9;
+
+  /* Memory mode color */
+  --color-memory: #c9ced6;
+
+  /* Random avatar colors */
+  --color-avatar-1: #8fafc7;
+  --color-avatar-2: #afc4b2;
+  --color-avatar-3: #b7a7c9;
+  --color-avatar-4: #e2b8b0;
+  --color-avatar-5: #9bbfc1;
+  --color-avatar-6: #c7a6b8;
+  --color-avatar-7: #d8c7a3;
+  --color-avatar-8: #e6c3a3;
+
+  /* Layout */
+  --page-padding: 16px;
+  --max-width-content: 1200px;
+  --header-height: 56px;
+
+  /* Common UI */
+  --radius-card: 15px;
+  --shadow-card: 0 4px 10px rgba(0, 0, 0, 0.2);
+  --transition-default: 0.2s ease;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
 
-@media (prefers-color-scheme: dark) {
+/* Responsive tokens
+   - Page padding by screen size */
+@media (min-width: 768px) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --page-padding: 24px;
   }
 }
 
+@media (min-width: 1024px) {
+  :root {
+    --page-padding: 32px;
+  }
+}
+
+
+/* Tailwind theme bridge
+   - Expose CSS variables to Tailwind v4 */
+@theme inline {
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --font-sans: var(--font-sans);
+}
+
+
+/* Reset / base rules
+   - Safer box sizing
+   - Remove default margin
+   - Prevent horizontal overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+
+/* Base typography / body */
+html {
+  font-size: 16px;
+  font-family: var(--font-sans);
+}
+
+body {
+  min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+
+/* Media defaults
+   - Prevent images/videos from overflowing */
+img,
+svg,
+video,
+canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+
+/* Form element font inheritance
+   - Keep buttons / inputs consistent */
+button,
+input,
+textarea,
+select {
+  font: inherit;
 }
