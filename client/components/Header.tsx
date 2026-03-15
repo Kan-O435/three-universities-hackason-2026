@@ -2,23 +2,22 @@
 
 import type { KeyboardEvent } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { getAvatarColor } from "@/lib/getAvatarColor";
+import Avatar from "./Avatar";
 
 export default function Header() {
 	const router = useRouter();
+	const { user } = useAuth();
 
-	const navigateToHome = () => {
-		router.push("/home");
-	};
+	const displayName: string = user?.user_metadata?.display_name ?? "";
+	const avatarColor = user ? getAvatarColor("", user.id) : "";
 
 	const handleTitleKeyDown = (event: KeyboardEvent<HTMLHeadingElement>) => {
 		if (event.key === "Enter" || event.key === " ") {
 			event.preventDefault();
-			navigateToHome();
+			router.push("/home");
 		}
-	};
-
-	const navigateToMyPage = () => {
-		router.push("/maypage");
 	};
 
 	return (
@@ -33,9 +32,7 @@ export default function Header() {
 				<h1
 					className="cursor-pointer hover:-translate-y-1 font-bold text-2xl tracking-tight"
 					style={{ color: "var(--color-text)" }}
-					onClick={() => {
-						navigateToHome();
-					}}
+					onClick={() => router.push("/home")}
 					onKeyDown={handleTitleKeyDown}
 					role="link"
 					tabIndex={0}
@@ -43,18 +40,15 @@ export default function Header() {
 					HazyRoom
 				</h1>
 
-				<button
-					type="button"
-					onClick={navigateToMyPage}
-					className="flex h-11 w-11 items-center justify-center rounded-full text-lg font-semibold cursor-pointer transition hover:brightness-95"
-					style={{
-						backgroundColor: "var(--color-bg)",
-						color: "var(--color-accent-2)",
-					}}
-					aria-label="マイページ"
-				>
-					My
-				</button>
+				{user && (
+					<button
+						type="button"
+						onClick={() => router.push("/profile")}
+						aria-label="マイページ"
+					>
+						<Avatar name={displayName} color={avatarColor} size="md" />
+					</button>
+				)}
 			</div>
 		</header>
 	);

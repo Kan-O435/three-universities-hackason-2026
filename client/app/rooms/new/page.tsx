@@ -1,8 +1,10 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Header from "@/components/Header";
+import { useAuth } from "@/context/AuthContext";
+import { createRoom } from "@/lib/rooms";
 
 type Notice = {
 	type: "success" | "error";
@@ -49,6 +51,7 @@ const parseJstLocalToIso = (value: string) => {
 
 export default function NewRoomPage() {
 	const router = useRouter();
+	const { user, loading } = useAuth();
 	const [roomName, setRoomName] = useState("");
 	const [expiresAtLocal, setExpiresAtLocal] = useState(() => {
 		return toJstInputValue(addHours(new Date(), 1));
@@ -56,6 +59,10 @@ export default function NewRoomPage() {
 	const [description, setDescription] = useState("");
 	const [notice, setNotice] = useState<Notice | null>(null);
 	const [isSubmitting, setIsSubmitting] = useState(false);
+
+	useEffect(() => {
+		if (!loading && !user) router.replace("/");
+	}, [user, loading, router]);
 
 	const canSubmit = useMemo(() => {
 		return (
@@ -66,8 +73,7 @@ export default function NewRoomPage() {
 		);
 	}, [description, expiresAtLocal, isSubmitting, roomName]);
 
-	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-		event.preventDefault();
+	const handleSubmit = () => {
 		setNotice(null);
 
 		const trimmedName = roomName.trim();
@@ -111,13 +117,13 @@ export default function NewRoomPage() {
 		}
 
 		setIsSubmitting(true);
-
-		// UI先行開発中はDB保存を行わず、仮IDで詳細画面へ遷移する。
-		const mockRoomId = `preview-${Date.now().toString(36)}`;
-		setNotice({ type: "success", text: "UIプレビュー用のルームを作成しました。" });
-		setIsSubmitting(false);
-		router.push(`/rooms/${mockRoomId}`);
+		createRoom(trimmedName, trimmedDescription, expiresAtIso)
+			.then((room) => router.push(`/rooms/${room.id}`))
+			.catch((err: Error) => setNotice({ type: "error", text: err.message }))
+			.finally(() => setIsSubmitting(false));
 	};
+
+	if (loading || !user) return null;
 
 	return (
 		<div className="min-h-screen bg-background">
@@ -141,10 +147,10 @@ export default function NewRoomPage() {
 						className="mt-2 text-sm leading-7 sm:text-base"
 						style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}
 					>
-						ルーム名・有効期限・概要を入力して、新しいチャットルームを作成します（UIプレビュー中）。
+						ルーム名・有効期限・概要を入力して、新しいチャットルームを作成します。
 					</p>
 
-					<form className="mt-6 space-y-4" onSubmit={handleSubmit}>
+					<form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
 						<div className="space-y-1.5">
 							<label
 								htmlFor="room-name"

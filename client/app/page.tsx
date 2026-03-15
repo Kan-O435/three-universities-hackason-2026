@@ -1,8 +1,36 @@
-import Header from "@/components/Header";
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
+import Header from "@/components/Header";
+import { signIn } from "@/lib/auth";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Home() {
+  const router = useRouter();
+  const { user, loading } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!loading && user) router.replace("/home");
+  }, [user, loading, router]);
+
+  if (loading || user) return null;
+
+  const handleLogin = () => {
+    setError(null);
+    setIsSubmitting(true);
+    signIn(email, password)
+      .then(() => router.replace("/home"))
+      .catch((err: Error) => setError(err.message))
+      .finally(() => setIsSubmitting(false));
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -108,36 +136,19 @@ export default function Home() {
               ログイン
             </h2>
 
-            <form className="mt-6 space-y-4" action="#" method="post">
-              <div className="space-y-1.5">
-                <label htmlFor="name" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-                  名前
-                </label>
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  placeholder="山田 太郎"
-                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition focus:ring-2"
-                  style={{
-                    borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
-                    backgroundColor: "var(--color-surface)",
-                    color: "var(--color-text)",
-                    boxShadow: "0 0 0 0 transparent",
-                  }}
-                />
-              </div>
-
+            <form className="mt-6 space-y-4" onSubmit={(e) => { e.preventDefault(); handleLogin(); }}>
               <div className="space-y-1.5">
                 <label htmlFor="email" className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
                   メールアドレス
                 </label>
                 <input
                   id="email"
-                  name="email"
                   type="email"
-                  placeholder="sample@example.com"
-                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:opacity-70"
                   style={{
                     borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
                     backgroundColor: "var(--color-surface)",
@@ -152,10 +163,12 @@ export default function Home() {
                 </label>
                 <input
                   id="password"
-                  name="password"
                   type="password"
-                  placeholder="••••••••"
-                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  disabled={isSubmitting}
+                  required
+                  className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none transition disabled:opacity-70"
                   style={{
                     borderColor: "color-mix(in srgb, var(--color-accent-2) 34%, white)",
                     backgroundColor: "var(--color-surface)",
@@ -164,22 +177,33 @@ export default function Home() {
                 />
               </div>
 
+              {error && (
+                <p
+                  className="rounded-lg border px-4 py-3 text-sm"
+                  style={{
+                    borderColor: "color-mix(in srgb, #e03131 35%, white)",
+                    backgroundColor: "color-mix(in srgb, #e03131 10%, white)",
+                    color: "color-mix(in srgb, #b02121 90%, black)",
+                  }}
+                >
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition hover:brightness-95"
-                style={{
-                  backgroundColor: "var(--color-accent-2)",
-                  color: "white",
-                }}
+                disabled={isSubmitting}
+                className="mt-2 w-full rounded-xl px-4 py-3 text-sm font-semibold tracking-wide transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-70"
+                style={{ backgroundColor: "var(--color-accent-2)", color: "white" }}
               >
-                ログイン
+                {isSubmitting ? "送信中..." : "ログイン"}
               </button>
             </form>
 
             <p className="mt-5 text-center text-sm" style={{ color: "color-mix(in srgb, var(--color-text) 78%, white)" }}>
               アカウントをお持ちでない方は{" "}
               <Link
-                href="#"
+                href="/auth"
                 className="font-semibold underline decoration-2 underline-offset-4"
                 style={{ color: "var(--color-accent-2)" }}
               >

@@ -3,6 +3,7 @@ import { getAvatarColor } from "../lib/getAvatarColor";
 
 type ChatMessageProps = {
   roomId: string;
+  userId: string;
   name: string;
   message: string;
   side?: "left" | "right";
@@ -11,13 +12,14 @@ type ChatMessageProps = {
 
 export default function ChatMessage({
   roomId,
+  userId,
   name,
   message,
   side = "left",
   isMemoryMode = false,
 }: ChatMessageProps) {
   const isRight = side === "right";
-  const avatarColor = getAvatarColor(roomId, name);
+  const avatarColor = getAvatarColor(roomId, userId);
 
   return (
     <div className={`flex w-full ${isRight ? "justify-end" : "justify-start"}`}>

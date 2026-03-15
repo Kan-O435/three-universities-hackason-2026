@@ -1,26 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import Header from "@/components/Header";
 import GroupCard from "@/components/GroupCard";
 import CreateGroupCard from "@/components/CreateGroupCard";
-
-const activeGroups = [
-  { id: 1, name: "Group A", timeLabel: "20:19" },
-  { id: 2, name: "Group C", timeLabel: "3日" },
-  { id: 3, name: "Group F", timeLabel: "5時間" },
-];
-
-const memoryGroups = [
-  { id: 4, name: "Group B", timeLabel: "00:00" },
-  { id: 5, name: "Group D", timeLabel: "00:00" },
-  { id: 6, name: "Group E", timeLabel: "00:00" },
-];
+import { getMyRooms } from "@/lib/rooms";
+import { formatTimeLabel, isExpired } from "@/lib/formatTimeLabel";
+import type { Room } from "@/types";
 
 export default function HomePage() {
-  const [isMemoryMode, setIsMemoryMode] = useState(false);
   const router = useRouter();
+  const { user, loading } = useAuth();
+  const [isMemoryMode, setIsMemoryMode] = useState(false);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [, setTick] = useState(0);
+
+  useEffect(() => {
+    if (!loading && !user) router.replace("/");
+  }, [user, loading, router]);
+
+  useEffect(() => {
+    if (!user) return;
+    getMyRooms().then(setRooms).catch(console.error);
+  }, [user]);
+
+  // アクティブルームの残り時間を毎秒更新
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  if (loading || !user) return null;
+
+  const activeRooms = rooms.filter((r) => !isExpired(r.expires_at));
+  const memoryRooms = rooms.filter((r) => isExpired(r.expires_at));
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -58,21 +73,23 @@ export default function HomePage() {
             )}
 
             {!isMemoryMode &&
-              activeGroups.map((group) => (
+              activeRooms.map((room) => (
                 <GroupCard
-                  key={group.id}
-                  groupName={group.name}
-                  timeLabel={group.timeLabel}
+                  key={room.id}
+                  groupName={room.name}
+                  timeLabel={formatTimeLabel(room.expires_at)}
+                  onClick={() => router.push(`/rooms/${room.id}`)}
                 />
               ))}
 
             {isMemoryMode &&
-              memoryGroups.map((group) => (
+              memoryRooms.map((room) => (
                 <GroupCard
-                  key={group.id}
-                  groupName={group.name}
-                  timeLabel={group.timeLabel}
+                  key={room.id}
+                  groupName={room.name}
+                  timeLabel={formatTimeLabel(room.expires_at)}
                   isMemoryMode
+                  onClick={() => router.push(`/rooms/${room.id}`)}
                 />
               ))}
           </div>
