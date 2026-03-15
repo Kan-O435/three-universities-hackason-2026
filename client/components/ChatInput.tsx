@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type ChatInputProps = {
   onSend?: (message: string) => void;
@@ -12,6 +12,7 @@ export default function ChatInput({
   isMemoryMode = false,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
+  const isComposing = useRef(false);
 
   const send = () => {
     if (isMemoryMode) return;
@@ -46,7 +47,9 @@ export default function ChatInput({
           value={message}
           disabled={isMemoryMode}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && send()}
+          onCompositionStart={() => { isComposing.current = true; }}
+          onCompositionEnd={() => { isComposing.current = false; }}
+          onKeyDown={(e) => e.key === "Enter" && !isComposing.current && send()}
           placeholder={isMemoryMode ? "Memory mode" : "Type message"}
           className="w-full bg-transparent text-[var(--color-text)] outline-none"
         />
