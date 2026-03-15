@@ -80,6 +80,8 @@
 | messages | REPLICA IDENTITY FULL | チャットのリアルタイム更新 |
 | room_members | REPLICA IDENTITY FULL | メンバー参加のリアルタイム更新 |
 
+> **注意：** `alter publication supabase_realtime add table ...` は冪等ではありません。2回実行するとエラーになるため、初回のみ実行してください。
+
 ---
 
 ## トリガー
@@ -122,12 +124,12 @@ $$;
 
 ---
 
-### 参加ページ用関数（未ログインユーザー向け）
+### 参加ページ用関数（未ログイン・ログイン済み共通）
 
-未ログインユーザーが参加ページでルーム情報を確認できるように、room_idを受け取って必要最小限の情報だけを返すSECURITY DEFINER関数を用意する。
-`rooms`・`users` テーブルへのanon SELECTは廃止し、この関数経由のみ許可する。
+未ログインユーザーおよびログイン済みで未参加のユーザーが参加ページでルーム情報を確認できるように、room_idを受け取って必要最小限の情報だけを返すSECURITY DEFINER関数を用意する。
 
-フロントエンドでは `supabase.from()` ではなく `supabase.rpc('get_room_preview', { p_room_id })` で呼び出す。
+- `rooms` テーブルへのSELECTはメンバーのみに制限するため、参加前のルーム情報取得はこの関数経由のみとなる
+- フロントエンドでは `supabase.from('rooms')` ではなく `supabase.rpc('get_room_preview', { p_room_id })` で呼び出す
 
 ```sql
 create or replace function public.get_room_preview(p_room_id uuid)
@@ -153,7 +155,8 @@ as $$
   where r.id = p_room_id;
 $$;
 
-grant execute on function public.get_room_preview to anon, authenticated;
+-- 引数型を含めた完全なシグネチャで指定する必要がある
+grant execute on function public.get_room_preview(uuid) to anon, authenticated;
 ```
 
 ---
@@ -165,13 +168,17 @@ grant execute on function public.get_room_preview to anon, authenticated;
 | INSERT | — | 不可（on_auth_user_createdトリガーで自動作成） |
 | UPDATE | authenticated | `auth.uid() = id`（自分のみ） |
 
+> **トレードオフ：** authenticated であれば全ユーザーの display_name を取得できます。「同じルームのメンバーのみ」に絞ることも可能ですが、実装が複雑になるためハッカソン規模では許容しています。
+
 ### `rooms`
 | 操作 | ロール | 条件 |
 |---|---|---|
-| SELECT | authenticated | 常に許可 |
+| SELECT | authenticated | `is_room_member(id) = true`（メンバーのみ） |
 | INSERT | authenticated | `owner_id = auth.uid()` |
 | UPDATE | authenticated | `auth.uid() = owner_id`（expires_at・owner_idはトリガーで変更不可） |
 | DELETE | — | 不可 |
+
+> **注意：** 参加ページ（参加前のルーム情報表示）は `get_room_preview()` RPC を使用すること。認証済みユーザーでも `supabase.from('rooms')` では未参加ルームの情報を取得できない。
 
 ### `room_members`
 | 操作 | ロール | 条件 |
@@ -193,10 +200,14 @@ grant execute on function public.get_room_preview to anon, authenticated;
 
 ## SQL（全文）
 
+> **注意：** `alter publication` は冪等でないため初回のみ実行してください。
+
 ```sql
 -- =====================================================
 -- Tables
 -- =====================================================
+
+-- gen_random_uuid() はPostgreSQL 13以降ビルトイン（pgcrypto拡張は不要）
 
 create table public.users (
   id           uuid        primary key references auth.users(id) on delete cascade,
@@ -240,7 +251,7 @@ create index on public.room_members (user_id);
 create index on public.room_members (room_id);
 
 -- =====================================================
--- Realtime
+-- Realtime（初回のみ実行：冪等でないためマイグレーション管理を推奨）
 -- =====================================================
 
 alter table public.messages     replica identity full;
@@ -281,6 +292,12 @@ security definer
 set search_path = public
 as $$
 begin
+  -- display_nameが未設定の場合は明示的なエラーを返す
+  -- フロントエンドでサインアップ時に必須入力として制御すること
+  if new.raw_user_meta_data->>'display_name' is null then
+    raise exception 'display_name is required';
+  end if;
+
   insert into public.users (id, display_name)
   values (new.id, new.raw_user_meta_data->>'display_name');
   return new;
@@ -316,8 +333,7 @@ as $$
   );
 $$;
 
--- 未ログインユーザー向け参加ページ用関数
--- rooms・usersへのanon SELECTを廃止し、この関数経由のみ許可する
+-- 未ログイン・未参加ユーザー向け参加ページ用関数
 -- フロントエンド: supabase.rpc('get_room_preview', { p_room_id })
 create or replace function public.get_room_preview(p_room_id uuid)
 returns table (
@@ -342,7 +358,8 @@ as $$
   where r.id = p_room_id;
 $$;
 
-grant execute on function public.get_room_preview to anon, authenticated;
+-- 引数型を含めた完全なシグネチャで指定する必要がある
+grant execute on function public.get_room_preview(uuid) to anon, authenticated;
 
 -- =====================================================
 -- Triggers
@@ -390,11 +407,11 @@ create policy "users: update own"
   using     (auth.uid() = id)
   with check (auth.uid() = id);
 
--- rooms
-create policy "rooms: authenticated select"
+-- rooms（メンバーのみSELECT可。参加前は get_room_preview() RPC を使用）
+create policy "rooms: members select"
   on public.rooms for select
   to authenticated
-  using (true);
+  using (is_room_member(id));
 
 create policy "rooms: authenticated insert"
   on public.rooms for insert
@@ -449,5 +466,7 @@ create policy "messages: members insert"
 
 - **期限切れルームのUPDATE不可**：`expires_at > now()` のCHECK制約により、期限切れたルームへのUPDATEはすべて失敗する。アーカイブ後にname/descriptionを変更できないのは意図的な副作用として許容している
 - **オーナーのアカウント削除不可**：`rooms.owner_id` の ON DELETE RESTRICT により、ルームを所有するユーザーはauth.usersから削除できない。ユーザー削除機能は実装しないため問題なし
-- **表示名なしでのサインアップ不可**：`handle_new_user` トリガーがNOT NULL制約に違反してエラーになるため、フロントエンドで必須入力として制御する
-- **参加ページのルーム情報取得**：未ログイン状態では `supabase.from('rooms')` は使えない。`supabase.rpc('get_room_preview', { p_room_id })` を使うこと
+- **表示名なしでのサインアップ不可**：`handle_new_user` トリガーで明示的に例外を発生させるため、フロントエンドで必須入力として制御すること
+- **参加ページのルーム情報取得**：未ログイン・ログイン済み問わず参加前は `supabase.rpc('get_room_preview', { p_room_id })` を使うこと。`supabase.from('rooms')` はメンバーのみアクセス可能
+- **`gen_random_uuid()` について**：PostgreSQL 13以降はビルトイン関数のため `pgcrypto` 拡張は不要
+- **`alter publication` について**：冪等でないため2回実行するとエラーになる。初回のみ実行すること
