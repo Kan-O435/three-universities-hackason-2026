@@ -27,14 +27,13 @@
 ### 必要なもの
 
 - Node.js 20 以上
-- Supabase プロジェクト（[supabase.com](https://supabase.com)）
 
 ### 手順
 
 ```bash
 # リポジトリをクローン
 git clone <repo-url>
-cd APU2026/client
+cd three-universities-hackason-2026/client
 
 # 依存関係をインストール
 npm install
